@@ -1,0 +1,172 @@
+/* The Fleet tab's boards: members grid, task board, roster list, comms timeline. */
+
+/* Card titles with a leading glyph. */
+.lc-card-title-text { display: inline-flex; align-items: center; gap: 6px; }
+.lc-card-title-text svg { flex: none; color: var(--dsw-alias-label-secondary); }
+
+.lc-fleet-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-bottom: 8px; }
+.lc-fleet-filters { display: inline-flex; flex-wrap: wrap; gap: 2px; padding: 2px; border-radius: 7px; background: var(--dsw-alias-bg-layer-2); border: 1px solid var(--dsw-alias-border-l2); }
+.lc-fleet-search { flex: 1 1 140px; min-width: 120px; max-width: 240px; font: inherit; font-size: 11.5px; padding: 4px 9px; border-radius: 7px; border: 1px solid var(--dsw-alias-border-l2); background: var(--dsw-alias-bg-layer-2); color: var(--dsw-alias-label-primary); outline: none; }
+.lc-fleet-search:focus-visible { border-color: var(--dsw-alias-brand-primary, var(--color-blue-500)); }
+.lc-fleet-sort { font: inherit; font-size: 11.5px; padding: 3px 6px; border-radius: 7px; border: 0.5px solid var(--dsw-alias-border-l4); background: var(--dsw-alias-bg-layer-2); color: var(--dsw-alias-label-primary); }
+
+/* ---- Overview strip ---- */
+.lc-summary { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
+.lc-summary-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; flex: 1; min-width: 0; }
+.lc-summary-progress { display: inline-flex; align-items: center; gap: 8px; margin-left: auto; font-size: 11px; color: var(--dsw-alias-label-secondary); font-variant-numeric: tabular-nums; }
+.lc-summary-progress-label { color: var(--dsw-alias-label-primary); font-weight: 600; }
+.lc-summary-progress-n { font-weight: 600; }
+
+/* The overview strip's progress track. */
+.lc-tasks-progress-track { display: inline-block; width: 140px; height: 6px; border-radius: 4px; overflow: hidden; background: color-mix(in srgb, var(--dsw-alias-label-secondary) 16%, transparent); }
+.lc-tasks-progress-track i { display: block; height: 100%; border-radius: 4px; background: var(--dsw-alias-brand-primary, var(--color-blue-500)); transition: width var(--ds-transition-duration, 0.2s) var(--ds-ease-in-out, ease-in-out); }
+
+/* Section heads inside the members board (team cards / other agents). */
+.lc-board-section-head { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 650; letter-spacing: 0.02em; color: var(--dsw-alias-label-secondary); margin: 10px 0 6px; padding-bottom: 4px; border-bottom: 1px dashed var(--dsw-alias-border-l2); }
+.lc-members-note { margin: 2px 0 6px; font-size: 11px; color: var(--dsw-alias-label-tertiary, var(--dsw-alias-label-secondary)); }
+
+/* ---- Members board ---- */
+/* The 200px floor keeps the two-column read the common case: the unified cards are compact
+   enough that two of them fit the boards column down to a narrow pane. */
+.lc-members-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(200px, 100%), 1fr)); gap: 8px; }
+.lc-member-card {
+  display: flex; flex-direction: column; gap: 4px; padding: 8px 10px; border-radius: 10px;
+  background: var(--dsw-alias-bg-layer-2);
+  /* The member's roster hue (golden-angled, shared with the graph's family links) tints the icon ring. */
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-top: 2px solid var(--lc-member-hue, var(--dsw-alias-border-l2));
+  cursor: pointer; outline: none;
+  transition: border-color var(--ds-transition-duration, 0.2s) var(--ds-ease-in-out, ease-in-out),
+    box-shadow var(--ds-transition-duration, 0.2s) var(--ds-ease-in-out, ease-in-out),
+    transform var(--ds-transition-duration, 0.2s) var(--ds-ease-in-out, ease-in-out),
+    opacity var(--ds-transition-duration, 0.2s) var(--ds-ease-in-out, ease-in-out);
+}
+/* The controlled hover (the graph's linked hover) shares the card's own hover lift. */
+.lc-member-card:hover, .lc-member-hover { transform: translateY(-1px); box-shadow: 0 2px 10px color-mix(in srgb, var(--color-neutral-500) 18%, transparent); }
+/* Hover focus: the other member cards recede to gray, their primary titles with them, so the
+   hovered one leads the board (the graph's lineage-focus dim, mirrored across both grids).
+   Zero-JS: every hover source the view lifts lands the class on exactly one card. */
+.lc-members:has(.lc-member-hover) .lc-member-card:not(.lc-member-hover) { opacity: 0.45; }
+.lc-member-card:focus-visible { outline: 2px solid var(--dsw-alias-brand-primary, var(--color-blue-500)); outline-offset: 1px; }
+.lc-member-pinned { border-color: color-mix(in srgb, var(--dsw-alias-brand-primary, var(--color-blue-500)) 60%, transparent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--dsw-alias-brand-primary, var(--color-blue-500)) 30%, transparent); }
+.lc-member-failed { opacity: 0.7; }
+.lc-member-head { display: flex; align-items: center; gap: 7px; min-width: 0; }
+.lc-member-icon {
+  flex: none; display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px;
+  border-radius: 6px; color: var(--lc-member-hue, var(--dsw-alias-label-secondary));
+  background: color-mix(in srgb, var(--lc-member-hue, var(--dsw-alias-label-secondary)) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--lc-member-hue, var(--dsw-alias-border-l2)) 35%, transparent);
+}
+.lc-member-name { flex: 1; min-width: 0; font-size: 12.5px; color: var(--dsw-alias-label-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Other agents wear their prompt title as the name: two clamped lines beat a harsher ellipsis. */
+.lc-member-name-wrap { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; white-space: normal; line-height: 1.25; }
+.lc-member-dot { flex: none; }
+.lc-member-status { display: flex; align-items: baseline; gap: 8px; font-size: 11px; color: var(--dsw-alias-label-secondary); }
+.lc-member-model { font-variant-numeric: tabular-nums; color: var(--dsw-alias-label-tertiary, var(--dsw-alias-label-secondary)); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lc-member-desc { font-size: 11.5px; line-height: 1.4; color: var(--dsw-alias-label-secondary); display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; overflow-wrap: anywhere; }
+.lc-member-reply { font-size: 11px; line-height: 1.4; color: var(--dsw-alias-label-tertiary, var(--dsw-alias-label-secondary)); font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lc-member-reply::before { content: none; }
+/* The run's activity line (the graph cards' meta readout). */
+.lc-member-meta { display: flex; align-items: baseline; gap: 6px; font-size: 10.5px; line-height: 1.3; color: var(--dsw-alias-label-secondary); font-variant-numeric: tabular-nums; }
+.lc-member-meta-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lc-member-foot { display: flex; align-items: center; gap: 6px; margin-top: auto; padding-top: 2px; }
+.lc-member-tasks { border: 1px solid var(--dsw-alias-border-l1); background: var(--dsw-alias-bg-layer-1); color: var(--dsw-alias-brand-primary, var(--color-blue-500)); font: inherit; font-size: 10.5px; padding: 1px 8px; border-radius: 999px; cursor: pointer; }
+.lc-member-tasks:hover { border-color: var(--dsw-alias-brand-primary, var(--color-blue-500)); }
+.lc-member-tasks-on { background: color-mix(in srgb, var(--dsw-alias-brand-primary, var(--color-blue-500)) 14%, transparent); border-color: var(--dsw-alias-brand-primary, var(--color-blue-500)); }
+.lc-member-tasks-none { font-size: 10.5px; color: var(--dsw-alias-label-tertiary, var(--dsw-alias-label-secondary)); }
+.lc-member-open { margin-left: auto; }
+
+/* ---- Task board (status-grouped list) ---- */
+.lc-tasks-filter { cursor: pointer; color: var(--dsw-alias-brand-primary, var(--color-blue-500)); }
+.lc-tasks-group { margin-top: 10px; }
+.lc-tasks-group:first-of-type { margin-top: 4px; }
+.lc-tasks-group-head { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 650; letter-spacing: 0.02em; padding-bottom: 5px; border-bottom: 2px solid transparent; margin-bottom: 6px; }
+.lc-tasks-group-in_progress .lc-tasks-group-head { color: var(--dsw-alias-brand-primary, var(--color-blue-500)); border-bottom-color: color-mix(in srgb, var(--dsw-alias-brand-primary, var(--color-blue-500)) 45%, transparent); }
+.lc-tasks-group-pending .lc-tasks-group-head { color: var(--color-amber-500); border-bottom-color: color-mix(in srgb, var(--color-amber-500) 45%, transparent); }
+.lc-tasks-group-completed .lc-tasks-group-head { color: var(--dsw-alias-state-success-primary, var(--color-green-500)); border-bottom-color: color-mix(in srgb, var(--dsw-alias-state-success-primary, var(--color-green-500)) 45%, transparent); }
+.lc-tasks-rows { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+
+/* The task card folds at a default height and grows with the network card beside it: the cap is
+   the larger of its own default and the graph's measured natural height minus the members card
+   and its 7px bottom margin (--lc-*-h, measured by fleetView's observer), so the two columns'
+   bottom edges keep meeting. The toolbar pins while the rows fold into their own scroll region. */
+.lc-tasks { position: relative; display: flex; flex-direction: column; overflow: hidden; max-height: max(560px, calc(var(--lc-graph-h, 0px) - var(--lc-members-h, 0px) - 7px)); }
+.lc-tasks-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; scrollbar-width: thin; }
+/* The task rows are opaque cards, so the cut-off hint is a sticky overlay fade at the region's
+   visible bottom (the comms rows are transparent and read the edge-attached fades below). */
+.lc-tasks-body::after { content: ''; position: sticky; bottom: 0; display: block; height: 44px; margin-top: -44px; pointer-events: none; background: linear-gradient(rgba(0, 0, 0, 0), color-mix(in srgb, var(--dsw-alias-bg-layer-1) 92%, transparent)); }
+
+/* A scroll region announces cut-off content without any JS: the edge-attached fades cover the
+   dot shadows while the edge is in view and scroll away to reveal them once it is not. */
+.lc-comms-rows {
+  background:
+    linear-gradient(var(--dsw-alias-bg-layer-1) 30%, rgba(0, 0, 0, 0)) center top,
+    linear-gradient(rgba(0, 0, 0, 0), var(--dsw-alias-bg-layer-1) 70%) center bottom,
+    radial-gradient(farthest-side at 50% 0%, color-mix(in srgb, var(--dsw-alias-label-secondary) 22%, transparent), rgba(0, 0, 0, 0)) center top,
+    radial-gradient(farthest-side at 50% 100%, color-mix(in srgb, var(--dsw-alias-label-secondary) 22%, transparent), rgba(0, 0, 0, 0)) center bottom;
+  background-repeat: no-repeat;
+  background-size: 100% 36px, 100% 36px, 100% 12px, 100% 12px;
+  background-attachment: local, local, scroll, scroll;
+}
+
+.lc-team-task { padding: 8px 10px; border-radius: 9px; border: 1px solid var(--dsw-alias-border-l2); background: var(--dsw-alias-bg-layer-2); cursor: pointer; transition: border-color var(--ds-transition-duration, 0.2s) var(--ds-ease-in-out, ease-in-out), box-shadow var(--ds-transition-duration, 0.2s) var(--ds-ease-in-out, ease-in-out); }
+.lc-team-task:hover { border-color: var(--dsw-alias-label-tertiary, var(--dsw-alias-border-l2)); }
+.lc-team-task-focus { border-color: var(--dsw-alias-brand-primary, var(--color-blue-500)); box-shadow: 0 0 0 2px color-mix(in srgb, var(--dsw-alias-brand-primary, var(--color-blue-500)) 30%, transparent); }
+/* A prerequisite of the focused task: a softer wash under the anchor's ring. */
+.lc-team-task-chain { border-color: color-mix(in srgb, var(--dsw-alias-brand-primary, var(--color-blue-500)) 45%, transparent); background: color-mix(in srgb, var(--dsw-alias-brand-primary, var(--color-blue-500)) 6%, var(--dsw-alias-bg-layer-2)); }
+.lc-tasks-view { margin-left: auto; }
+.lc-team-task-head { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+.lc-team-task-subject { flex: 1; min-width: 0; font-size: 12px; color: var(--dsw-alias-label-primary); overflow-wrap: anywhere; }
+/* Delegation subjects are prompts, not task names: two clamped lines, full text on hover. */
+.lc-team-task-subject-clamp { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.lc-team-task-owner { border: 0; background: transparent; padding: 0; font: inherit; font-size: 11px; font-weight: 600; color: var(--dsw-alias-brand-primary, var(--color-blue-500)); cursor: pointer; }
+.lc-team-task-desc { margin-top: 5px; font-size: 11.5px; line-height: 1.45; color: var(--dsw-alias-label-secondary); white-space: pre-wrap; overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+/* The collapsed description renders through the detail sections' Markdown body, flattened into
+   the row: no section padding or inner scroll — the clamp does the folding. The container's
+   pre-wrap is reset: markdown source whitespace is the renderer's business. */
+.lc-team-task-desc .lc-ts-desc-md { padding: 0; max-height: none; overflow: visible; white-space: normal; }
+/* The opened card's boxed sections (context tab's own chrome) sit inset on the row: one layer up,
+   one gap apart. */
+.lc-team-task .lc-ts-card { margin-top: 7px; background: var(--dsw-alias-bg-layer-1); }
+.lc-team-task-box-agent { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; padding: 7px 10px; font-size: 11.5px; }
+/* The dependency line: each blocker chip carries the blocker's own status dot, so "who waits on
+   whom, and is it done" never needs a second look. */
+.lc-team-task-deps { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; margin-top: 6px; font-size: 10.5px; color: var(--dsw-alias-label-tertiary, var(--dsw-alias-label-secondary)); }
+.lc-team-task-dep { display: inline-flex; align-items: center; gap: 4px; border: 1px solid var(--dsw-alias-border-l1); background: var(--dsw-alias-bg-layer-1); padding: 0 7px; border-radius: 999px; font: inherit; color: var(--dsw-alias-label-secondary); cursor: pointer; }
+.lc-team-task-dep:hover { color: var(--dsw-alias-label-primary); border-color: var(--dsw-alias-label-tertiary, var(--dsw-alias-border-l2)); }
+.lc-team-task-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin-top: 6px; font-size: 10.5px; color: var(--dsw-alias-label-tertiary, var(--dsw-alias-label-secondary)); }
+.lc-team-task-id { font-variant-numeric: tabular-nums; }
+.lc-team-task-scopes { overflow-wrap: anywhere; }
+.lc-team-task-warning { margin-top: 5px; font-size: 10.5px; color: var(--color-amber-500); }
+.lc-team-task-meta .lc-inspector-btn { margin-left: auto; }
+
+/* A subagent's prompt title runs long: the head label ellipsizes rather than wrapping the band. */
+.lc-tasks-group-head .lc-team-task-owner { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; }
+/* A delegation row's live readout: the run's figures. */
+.lc-team-task-run { display: flex; align-items: baseline; gap: 6px; margin-top: 6px; font-size: 10.5px; line-height: 1.3; color: var(--dsw-alias-label-tertiary, var(--dsw-alias-label-secondary)); font-variant-numeric: tabular-nums; }
+.lc-team-task-run-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ---- Comms timeline ---- */
+/* The comms card folds at its own static cap: the toolbar pins, the rows scroll under the same
+   cut-off fades as the task board. */
+.lc-comms { display: flex; flex-direction: column; overflow: hidden; max-height: 480px; }
+.lc-comms-rows { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; overflow-y: auto; scrollbar-width: thin; }
+.lc-comms-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 3px 8px; padding: 6px 2px; font-size: 11.5px; border-bottom: 1px dashed var(--dsw-alias-border-l2); border-left: 2px solid transparent; padding-left: 8px; }
+.lc-comms-row:last-child { border-bottom: 0; }
+.lc-comms-relay { border-left-color: color-mix(in srgb, var(--dsw-alias-brand-primary, var(--color-blue-500)) 55%, transparent); }
+.lc-comms-mailbox { border-left-color: color-mix(in srgb, var(--color-purple-500, #a855f7) 55%, transparent); }
+.lc-comms-settled { border-left-color: color-mix(in srgb, var(--dsw-alias-state-success-primary, var(--color-green-500)) 55%, transparent); }
+.lc-comms-time { flex: none; font-size: 10.5px; color: var(--dsw-alias-label-tertiary, var(--dsw-alias-label-secondary)); font-variant-numeric: tabular-nums; }
+.lc-comms-parties { display: inline-flex; align-items: baseline; gap: 4px; }
+.lc-comms-peer { border: 0; background: transparent; padding: 0; font: inherit; font-weight: 600; color: var(--dsw-alias-brand-primary, var(--color-blue-500)); cursor: pointer; }
+span.lc-comms-peer { cursor: default; }
+.lc-comms-arrow { color: var(--dsw-alias-label-tertiary, var(--dsw-alias-label-secondary)); }
+.lc-comms-text { flex-basis: 100%; color: var(--dsw-alias-label-secondary); overflow-wrap: anywhere; white-space: pre-wrap; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
+.lc-comms-note { margin-top: 8px; font-size: 10.5px; color: var(--dsw-alias-label-tertiary, var(--dsw-alias-label-secondary)); }
+
+/* ---- Inspector additions ---- */
+.lc-inspector-member-desc { margin-top: 4px; font-size: 11.5px; color: var(--dsw-alias-label-secondary); overflow-wrap: anywhere; }
+.lc-inspector-task-link { border: 0; background: transparent; padding: 0; font: inherit; text-align: left; color: var(--dsw-alias-label-primary); cursor: pointer; }
+.lc-inspector-task-link:hover { color: var(--dsw-alias-brand-primary, var(--color-blue-500)); }
+.lc-inspector-reply { font-size: 11.5px; line-height: 1.45; color: var(--dsw-alias-label-secondary); white-space: pre-wrap; overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
+.lc-inspector-reply-time { margin-left: 6px; font-weight: 400; font-variant-numeric: tabular-nums; }
